@@ -105,5 +105,24 @@ public class ServicioImpl implements Servicio {
 	            // Si no se encontró ningún resultado, lanzar una excepción con el código de error correspondiente
 	        	throw new SQLException("El viaje no existe", ".", CompraBilleteTrenException.NO_EXISTE_VIAJE);
 	        }
-	}
+	} catch (SQLException e) {
+	    	if (con != null) {
+	    		con.rollback();
+	    	}
+	    	throw e;
+	    } 
+
+		finally {
+	        // Cerramos recursos recursos
+	        if (rs != null) {
+	            rs.close();
+	        }
+	        if (st != null) {
+	            st.close();
+	        }
+	        if (con != null) {
+	            con.setAutoCommit(true); // Restaurar el modo de auto-commit
+	            con.close();
+	        }
+	    }
 }
