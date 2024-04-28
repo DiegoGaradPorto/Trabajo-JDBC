@@ -24,122 +24,65 @@ public class ServicioImpl implements Servicio {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServicioImpl.class);
 
-	@Override
-
 	public void anularBillete(Time hora, java.util.Date fecha, String origen, String destino, int nroPlazas, int ticket)
-
 			throws SQLException {
-
 		PoolDeConexiones pool = PoolDeConexiones.getInstance();
-
-		/* Conversiones de fechas y horas */
-
 		java.sql.Date fechaSqlDate = new java.sql.Date(fecha.getTime());
-
 		java.sql.Timestamp horaTimestamp = new java.sql.Timestamp(hora.getTime());
-
 		Connection con = null;
-
 		PreparedStatement st = null;
-
 		ResultSet rs = null;
 
-		// A completar por el alumno
-
 		try {
-
 			con = pool.getConnection();
-
 			// 1º Probamos que exista el ticket
-
-			st = con.prepareStatement("SELECT idTicket "
-
-					+ "FROM tickets "
-
-					+ "WHERE idTicket = ?");
-
+			st = con.prepareStatement("SELECT idTicket, idViaje, cantidad FROM tickets WHERE idTicket = ?");
 			st.setInt(1, ticket);
-
 			rs = st.executeQuery();
 
 			// si no encuentra un ticket lanza la excepcion
-
 			if (!rs.next())
 				throw new CompraBilleteTrenException(CompraBilleteTrenException.NO_EXISTE_VIAJE);
 
-			// 2º Comprobamos que el viaje no se efectuo
-
 			int idViaje = rs.getInt("idViaje");
+			int plazasLiberadas = rs.getInt("cantidad"); // Obtén las plazas a liberar aquí
 
-			st = con.prepareStatement("SELECT realizado "
-
-					+ "FROM viajes "
-
-					+ "WHERE idViaje = ?");
-
+			// 2º Comprobamos que el viaje no se efectuo
+			st = con.prepareStatement("SELECT realizado FROM viajes WHERE idViaje = ?");
 			st.setInt(1, idViaje);
-
 			rs = st.executeQuery();
 
 			if (!rs.next() || rs.getInt("realizado") == 1) {
-
 				LOGGER.error("No se puede anular un viaje ya pasado.");
-
 			}
 
-			// 3º Tomamos las plazas que se liberan del ticket anulado y actualizamos el
-			// viaje
-
-			int plazasLiberadas = rs.getInt("cantidad");
-
-			st = con.prepareStatement("UPDATE viajes "
-
-					+ "SET nPlazasLibres = nPlazasLibres + ? "
-
-					+ "WHERE idViaje = ?");
-
+			// 3º Tomamos las plazas que se liberan del ticket anulado y actualizamos el viaje
+			st = con.prepareStatement("UPDATE viajes SET nPlazasLibres = nPlazasLibres + ? WHERE idViaje = ?");
 			st.setInt(1, plazasLiberadas);
-
 			st.setInt(2, idViaje);
-
 			st.executeUpdate();
 
 			// comiteamos la transaccion
-
 			con.commit();
 
 		} catch (SQLException e) {
-
 			LOGGER.error("Error al anular el billete: " + e.getMessage());
-
-			con.rollback();
-			; // Realizamos el rollback de la transacción
-
-		} finally {
-
-			try {
-				if (rs != null)
-					rs.close();
-				if (st != null)
-					st.close();
-
-				if (con != null)
-					con.close();
-
-				LOGGER.info("Conexion cerrada.");
-
-				LOGGER.info("La conexion es valida: " + con.isValid(0));
-
-			} catch (SQLException e) {
-
-				LOGGER.error("Error al cierre de la conexion.");
-
-				LOGGER.error(e.getMessage());
-
+			if (con != null) {
+				con.rollback(); // Realizamos el rollback de la transacción
 			}
-
+		} finally {
+			if (rs != null) {
+				rs.close();
+			}
+			if (st != null) {
+				st.close();
+			}
+			if (con != null) {
+				con.close();
+				LOGGER.info("Conexion cerrada.");
+				LOGGER.info("La conexion es valida: " + con.isValid(0));
+			}
 		}
-
 	}
 
 	@Override
