@@ -114,6 +114,13 @@ public class ServicioImpl implements Servicio {
 		        	//st.setString(5, origen);
 		        	//st.setString(6, destino);
 		        	st.executeUpdate();
+			 
+			// Actualizar el número de plazas libres en el viaje tras la compra del billete
+		       	st = con.prepareStatement(
+		       	    "UPDATE viajes SET nPlazasLibres = nPlazasLibres - ? WHERE idViaje = ?");
+		       	st.setInt(1, nroPlazas); // Número de plazas compradas
+		       	st.setInt(2, idViaje);
+		       	st.executeUpdate();
 
 		        LOGGER.info("Compra de billetes realizada exitosamente.");
 		    } catch (SQLException e) {
