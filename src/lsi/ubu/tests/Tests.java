@@ -53,81 +53,34 @@ public class Tests {
 
 
 	public void ejecutarTestsAnularBilletes() {
-
-
-
 		Servicio servicio = new ServicioImpl();
-
-
-
 		PoolDeConexiones pool = PoolDeConexiones.getInstance();
-
-
-
 		Connection con = null;
-
 		PreparedStatement st = null;
-
 		ResultSet rs = null;
 
-
-
-		// A completar por el alumno
-
 		try {
+			// Prueba caso anular billete existente
+			LOGGER.info("Prueba anular billete existente");
+			Time hora = Time.valueOf("12:00:00");
+			java.util.Date fecha = toDate("27/04/2024");
+			int nroPlazas = 2;
+			int ticketExistente = 1;
+			servicio.anularBillete(hora, fecha, ORIGEN, DESTINO, nroPlazas, ticketExistente);
+			LOGGER.info("Anulación de billete existente OK");
 
-	        // Anular un billete que existe
-
-	        LOGGER.info("Prueba anular billete existente");
-
-	        int ticketExistente = 1; 
-
-	        int plazasBilleteExistente = 2; 
-
-	        
-
-	        Time hora = Time.valueOf("12:00:00");
-
-	        java.util.Date fecha = toDate("27/04/2024");
-
-	        
-
-	        servicio.anularBillete(hora, fecha, ORIGEN, DESTINO, plazasBilleteExistente, ticketExistente);
-
-	        
-
-	        LOGGER.info("Anulación de billete existente OK");
-
-
-
-	        // Anular un billete que no existe
-
-	        LOGGER.info("Prueba anular billete inexistente");
-
-	        int ticketInexistente = 999; // Suponiendo que el billete con ID 999 no existe
-
-	        int plazasBilleteInexistente = 1; // Cantidad arbitraria, no es relevante
-
-	       
-
-	        servicio.anularBillete(hora, fecha, ORIGEN, DESTINO, plazasBilleteInexistente, ticketInexistente);
-
-	        
-
-	        // Si la excepción no es lanzada, la prueba falla porque se esperaba una excepción
-
-	        LOGGER.error("Anulación de billete inexistente fallida: no se lanzó una excepción de billete no encontrado");
-
-
-
-	    } catch (SQLException e) {
-
-	        LOGGER.error("Se da cuenta de que el billete no existe OK: " + e.getMessage());	 
-
-	    }
-
-		
-
+			// Prueba caso anular billete inexistente
+			LOGGER.info("Prueba anular billete inexistente");
+			int ticketInexistente = 999; // Suponiendo que el billete con ID 999 no existe
+			try {
+				servicio.anularBillete(hora, fecha, ORIGEN, DESTINO, nroPlazas, ticketInexistente);
+				LOGGER.error("Anulación de billete inexistente fallida: no se lanzó una excepción de billete no encontrado");
+			} catch (SQLException e) {
+				LOGGER.info("Se da cuenta de que el billete no existe OK: " + e.getMessage());
+			}
+		} catch (SQLException e) {
+			LOGGER.error("Error al anular el billete: " + e.getMessage());
+		}
 	}
 
 
