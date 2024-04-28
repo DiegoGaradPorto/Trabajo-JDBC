@@ -56,12 +56,17 @@ public class ServicioImpl implements Servicio {
 				LOGGER.error("No se puede anular un viaje ya pasado.");
 			}
 
-			// 3º Tomamos las plazas que se liberan del ticket anulado y actualizamos el viaje
+			// 3º Tomamos las plazas que se liberan del ticket anulado y actualizamos el
+			// viaje
 			st = con.prepareStatement("UPDATE viajes SET nPlazasLibres = nPlazasLibres + ? WHERE idViaje = ?");
 			st.setInt(1, plazasLiberadas);
 			st.setInt(2, idViaje);
 			st.executeUpdate();
 
+			// 4º eliminamos el ticket
+			st = con.prepareStatement("DELETE FROM tickets WHERE idTicket = ?");
+			st.setInt(1, ticket);
+			st.executeUpdate();
 			// comiteamos la transaccion
 			con.commit();
 
