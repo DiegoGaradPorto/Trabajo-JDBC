@@ -94,21 +94,15 @@ public class ServicioImpl implements Servicio {
 	@Override
 
 	public void comprarBillete(Time hora, Date fecha, String origen, String destino, int nroPlazas)
-
 			throws SQLException {
-
 		PoolDeConexiones pool = PoolDeConexiones.getInstance();
 
 		/* Conversiones de fechas y horas */
-
 		java.sql.Date fechaSqlDate = new java.sql.Date(fecha.getTime());
-
 		java.sql.Timestamp horaTimestamp = new java.sql.Timestamp(hora.getTime());
 
 		Connection con = null;
-
 		PreparedStatement st = null;
-
 		ResultSet rs = null;
 
 		// A completar por el alumno : desde aquí
@@ -138,28 +132,19 @@ public class ServicioImpl implements Servicio {
 			rs = st.executeQuery();
 
 			if (!rs.next()) {
-
 				// No se encontró el viaje
-
 				throw new SQLException("No existe el viaje especificado.", null,
 						CompraBilleteTrenException.NO_EXISTE_VIAJE);
-
 			}
 
 			int idViaje = rs.getInt("idViaje");
 
 			// Verificar si hay plazas disponibles
-
 			st = con.prepareStatement(
-
 					"SELECT (m.nPlazas - COALESCE(SUM(t.cantidad), 0)) AS plazas_disponibles " +
-
 							"FROM modelos m " +
-
 							"INNER JOIN trenes tr ON m.idModelo = tr.modelo " +
-
 							"LEFT JOIN viajes v ON tr.idTren = v.idTren " +
-
 							"LEFT JOIN tickets t ON v.idViaje = t.idViaje " +
 
 							"WHERE v.idViaje = ? " +
@@ -180,7 +165,6 @@ public class ServicioImpl implements Servicio {
 			}
 
 			// Obtenemos el valor del precio para calcular
-
 			st = con.prepareStatement(
 
 					"SELECT r.precio " +
@@ -230,11 +214,9 @@ public class ServicioImpl implements Servicio {
 			// st.setString(6, destino);
 
 			st.executeUpdate();
-
 			LOGGER.info("Compra de billetes realizada exitosamente.");
 
 		} catch (SQLException e) {
-
 			LOGGER.error("Error al realizar la compra de billetes: " + e.getMessage());
 
 			throw e;
@@ -262,25 +244,6 @@ public class ServicioImpl implements Servicio {
 			}
 
 		}
-
-		// Insertamos la fila en la tabla de tickets
-		st = con.prepareStatement(
-				"INSERT INTO tickets (idTicket, idViaje, fechaCompra, cantidad, precio) " +
-						"VALUES (seq_tickets.nextval, ?, ?, ?, ?)");
-		st.setInt(1, idViaje);
-		st.setDate(2, fechaSqlDate);
-		st.setInt(3, nroPlazas);
-		st.setInt(4, precioTotal); // Multiplicar el precio por el número de plazas
-		// st.setString(5, origen);
-		// st.setString(6, destino);
-		st.executeUpdate();
-
-		// Actualizar el número de plazas libres en el viaje tras la compra del billete
-		st = con.prepareStatement(
-				"UPDATE viajes SET nPlazasLibres = nPlazasLibres - ? WHERE idViaje = ?");
-		st.setInt(1, nroPlazas); // Número de plazas compradas
-		st.setInt(2, idViaje);
-		st.executeUpdate();
 
 	}
 
