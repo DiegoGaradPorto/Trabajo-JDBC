@@ -95,14 +95,7 @@ public class Tests {
 
 
 
-	public void ejecutarTestsCompraBilletes() {
-
-
-
-		Servicio servicio = new ServicioImpl();
-
-
-
+	public void ejecutarTestsCompraBilletes() { Servicio servicio = new ServicioImpl();
 		PoolDeConexiones pool = PoolDeConexiones.getInstance();
 
 
@@ -113,15 +106,25 @@ public class Tests {
 
 		ResultSet rs = null;
 
+// Prueba caso comprar billete para un viaje ya realizado
+		LOGGER.info("Prueba comprar billete para un viaje ya realizado");
+		Time hora = Time.valueOf("12:00:00");
+		java.util.Date fecha = toDate("20/04/2022"); // Suponiendo que este viaje ya se ha realizado
+		int nroPlazas = 2;
+		try {
+			servicio.comprarBillete(hora, fecha, ORIGEN, DESTINO, nroPlazas);
+			LOGGER.error("Compra de billete para un viaje ya realizado fallida: no se lanzó una excepción de viaje ya realizado");
+		} catch (SQLException e) {
+			LOGGER.info("Se da cuenta de que el viaje ya se ha realizado OK: " + e.getMessage());
+		}
+
+// Prueba caso no existe el viaje
 
 
-		// Prueba caso no existe el viaje
+
+		try {
 
 
-
-		  try {
-
-			  
 
 			java.util.Date fecha = toDate("15/04/2010");
 
@@ -129,7 +132,7 @@ public class Tests {
 
 			int nroPlazas = 3;
 
-			
+
 
 			// se hace una compra, pasándole los valores de las variables
 
@@ -151,7 +154,7 @@ public class Tests {
 
 
 
-		// Prueba caso si existe pero no hay plazas
+// Prueba caso si existe pero no hay plazas
 
 
 
@@ -183,9 +186,9 @@ public class Tests {
 
 
 
-		// Prueba caso si existe y si hay plazas
+// Prueba caso si existe y si hay plazas
 
-		  try {
+		try {
 
 			java.util.Date fecha = toDate("20/04/2022");
 
@@ -246,8 +249,9 @@ public class Tests {
 			LOGGER.info("Error inesperado MAL");
 
 		}
-
 	}
+
+
 
 
 
