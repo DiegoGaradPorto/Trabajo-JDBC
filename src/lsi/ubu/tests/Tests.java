@@ -78,6 +78,16 @@ public class Tests {
 			} catch (SQLException e) {
 				LOGGER.info("Se da cuenta de que el billete no existe OK: " + e.getMessage());
 			}
+
+			// Prueba caso anular billete para un viaje ya realizado
+			LOGGER.info("Prueba anular billete para un viaje ya realizado");
+			int ticketViajeRealizado = 2; // Suponiendo que el billete con ID 2 está asociado a un viaje ya realizado
+			try {
+				servicio.anularBillete(hora, fecha, ORIGEN, DESTINO, nroPlazas, ticketViajeRealizado);
+				LOGGER.error("Anulación de billete para un viaje ya realizado fallida: no se lanzó una excepción de viaje ya realizado");
+			} catch (SQLException e) {
+				LOGGER.info("Se da cuenta de que el viaje ya se ha realizado OK: " + e.getMessage());
+			}
 		} catch (SQLException e) {
 			LOGGER.error("Error al anular el billete: " + e.getMessage());
 		}
