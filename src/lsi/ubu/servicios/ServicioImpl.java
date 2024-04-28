@@ -67,6 +67,7 @@ public class ServicioImpl implements Servicio {
 			st = con.prepareStatement("DELETE FROM tickets WHERE idTicket = ?");
 			st.setInt(1, ticket);
 			st.executeUpdate();
+
 			// comiteamos la transaccion
 			con.commit();
 
@@ -120,7 +121,6 @@ public class ServicioImpl implements Servicio {
 
 			st = con.prepareStatement(
 
-<<<<<<< HEAD
 					"SELECT v.idViaje " +
 
 							"FROM viajes v " +
@@ -262,26 +262,25 @@ public class ServicioImpl implements Servicio {
 			}
 
 		}
-=======
-		        // Insertamos la fila en la tabla de tickets
-		        st = con.prepareStatement(
-		        	    "INSERT INTO tickets (idTicket, idViaje, fechaCompra, cantidad, precio) " +
-		        	    "VALUES (seq_tickets.nextval, ?, ?, ?, ?)");
-		        	st.setInt(1, idViaje);
-		        	st.setDate(2, fechaSqlDate);
-		        	st.setInt(3, nroPlazas);
-		        	st.setInt(4, precioTotal); // Multiplicar el precio por el número de plazas
-		        	//st.setString(5, origen);
-		        	//st.setString(6, destino);
-		        	st.executeUpdate();
-			 
-			// Actualizar el número de plazas libres en el viaje tras la compra del billete
-		       	st = con.prepareStatement(
-		       	    "UPDATE viajes SET nPlazasLibres = nPlazasLibres - ? WHERE idViaje = ?");
-		       	st.setInt(1, nroPlazas); // Número de plazas compradas
-		       	st.setInt(2, idViaje);
-		       	st.executeUpdate();
->>>>>>> c0272adc1e2db24b935fcc734054a0b4d2b141f7
+
+		// Insertamos la fila en la tabla de tickets
+		st = con.prepareStatement(
+				"INSERT INTO tickets (idTicket, idViaje, fechaCompra, cantidad, precio) " +
+						"VALUES (seq_tickets.nextval, ?, ?, ?, ?)");
+		st.setInt(1, idViaje);
+		st.setDate(2, fechaSqlDate);
+		st.setInt(3, nroPlazas);
+		st.setInt(4, precioTotal); // Multiplicar el precio por el número de plazas
+		// st.setString(5, origen);
+		// st.setString(6, destino);
+		st.executeUpdate();
+
+		// Actualizar el número de plazas libres en el viaje tras la compra del billete
+		st = con.prepareStatement(
+				"UPDATE viajes SET nPlazasLibres = nPlazasLibres - ? WHERE idViaje = ?");
+		st.setInt(1, nroPlazas); // Número de plazas compradas
+		st.setInt(2, idViaje);
+		st.executeUpdate();
 
 	}
 
