@@ -105,28 +105,18 @@ public class ServicioImpl implements Servicio {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 
-		// A completar por el alumno : desde aquí
-
 		try {
-
 			con = pool.getConnection();
 
 			// Verificar si el viaje existe
-
 			st = con.prepareStatement(
-
 					"SELECT v.idViaje " +
-
 							"FROM viajes v " +
-
 							"INNER JOIN recorridos r ON v.idRecorrido = r.idRecorrido " +
-
 							"WHERE r.estacionOrigen = ? AND r.estacionDestino = ? AND v.fecha = ?");
 
 			st.setString(1, origen);
-
 			st.setString(2, destino);
-
 			st.setDate(3, fechaSqlDate);
 
 			rs = st.executeQuery();
@@ -146,9 +136,7 @@ public class ServicioImpl implements Servicio {
 							"INNER JOIN trenes tr ON m.idModelo = tr.modelo " +
 							"LEFT JOIN viajes v ON tr.idTren = v.idTren " +
 							"LEFT JOIN tickets t ON v.idViaje = t.idViaje " +
-
 							"WHERE v.idViaje = ? " +
-
 							"GROUP BY m.nPlazas");
 
 			st.setInt(1, idViaje);
@@ -156,23 +144,16 @@ public class ServicioImpl implements Servicio {
 			rs = st.executeQuery();
 
 			if (!rs.next() || rs.getInt("plazas_disponibles") < nroPlazas) {
-
 				// No hay plazas disponibles
-
 				throw new SQLException("No hay plazas disponibles para el viaje especificado.", null,
 						CompraBilleteTrenException.NO_PLAZAS);
-
 			}
 
 			// Obtenemos el valor del precio para calcular
 			st = con.prepareStatement(
-
 					"SELECT r.precio " +
-
 							"FROM recorridos r " +
-
 							"INNER JOIN viajes v ON r.idRecorrido = v.idRecorrido " +
-
 							"WHERE v.idViaje = ?");
 
 			st.setInt(1, idViaje);
@@ -182,69 +163,47 @@ public class ServicioImpl implements Servicio {
 			int precioRecorrido;
 
 			if (rs.next()) {
-
 				precioRecorrido = rs.getInt("precio");
-
 			}
 
 			// Calculamos el precio total del viaje
-
 			precioRecorrido = rs.getInt("precio"); // Obtener el precio del recorrido
-
 			int precioTotal = nroPlazas * precioRecorrido; // Calcular el precio total
 
 			// Insertamos la fila en la tabla de tickets
-
 			st = con.prepareStatement(
-
 					"INSERT INTO tickets (idTicket, idViaje, fechaCompra, cantidad, precio) " +
-
 							"VALUES (seq_tickets.nextval, ?, ?, ?, ?)");
 
 			st.setInt(1, idViaje);
-
 			st.setDate(2, fechaSqlDate);
-
 			st.setInt(3, nroPlazas);
-
 			st.setInt(4, precioTotal); // Multiplicar el precio por el número de plazas
 
-			// st.setString(5, origen);
-
-			// st.setString(6, destino);
-
 			st.executeUpdate();
+			con.commit(); // Confirmar la transacción
 			LOGGER.info("Compra de billetes realizada exitosamente.");
 
 		} catch (SQLException e) {
 			LOGGER.error("Error al realizar la compra de billetes: " + e.getMessage());
-
+			if (con != null) {
+				con.rollback(); // Realizamos el rollback de la transacción
+			}
 			throw e;
 
 		} finally {
-
 			// Cerrar recursos
-
 			if (rs != null) {
-
 				rs.close();
-
 			}
-
 			if (st != null) {
-
 				st.close();
-
 			}
-
 			if (con != null) {
-
 				con.close();
-
 			}
-
 		}
-
 	}
+
 
 }
