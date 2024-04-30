@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import lsi.ubu.tests.Tests;
 import lsi.ubu.util.ExecuteScript;
+import lsi.ubu.servicios.ServicioImpl;
 
 /**
  * ComprarBillete: Implementa el la compra de un billete de Tren controlando si
@@ -33,6 +34,7 @@ public class CompraBilleteTren {
 		// Ejecutar tests
 		Tests tests = new Tests();
 		tests.ejecutarTestsCompraBilletes();
+		
 
 		// Crear las tablas y filas en base de datos para la prueba
 		ExecuteScript.run("sql/CompraBilleteTren.sql");

@@ -32,12 +32,15 @@ public class CompraBilleteTrenException extends SQLException {
 		 */
 		this.codigo = code;
 
-		if (this.codigo == this.NO_PLAZAS) {
+this.codigo = code;
+		
+		switch(this.codigo) {
+		case NO_PLAZAS:
 			this.mensaje = "No hay plazas suficientes.";
-		} else if (this.codigo == this.NO_EXISTE_VIAJE) {
-			this.mensaje = "No existe viaje para tal fecha, hora, origen y destino.";
-		} else {
+			break;
+		case NO_EXISTE_VIAJE:
 			this.mensaje = "Excepción no identificada.";
+			break;
 		}
 
 		LOGGER.debug(mensaje);
